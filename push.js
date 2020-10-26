@@ -40,11 +40,11 @@ function subscribe() {
     // запрашиваем разрешение на получение уведомлений
     messaging
         .requestPermission()
-        .then(function() {
+        .then(function () {
             // получаем ID устройства
             messaging
                 .getToken()
-                .then(function(currentToken) {
+                .then(function (currentToken) {
                     console.log(currentToken);
                     if (currentToken) {
                         sendTokenToServer(currentToken);
@@ -53,12 +53,12 @@ function subscribe() {
                         setTokenSentToServer(false);
                     }
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                     console.warn('При получении токена произошла ошибка.', err);
                     setTokenSentToServer(false);
                 });
         })
-        .catch(function(err) {
+        .catch(function (err) {
             console.warn('Не удалось получить разрешение на показ уведомлений.', err);
         });
 }
@@ -89,7 +89,7 @@ function sendNotification(notification) {
     console.log('Send notification', notification);
     messaging
         .getToken()
-        .then(function(currentToken) {
+        .then(function (currentToken) {
             fetch('https://fcm.googleapis.com/fcm/send', {
                 method: 'POST',
                 headers: {
@@ -103,34 +103,34 @@ function sendNotification(notification) {
                     to: currentToken,
                 }),
             })
-                .then(function(response) {
+                .then(function (response) {
                     return response.json();
                 })
-                .then(function(json) {
+                .then(function (json) {
                     console.log('Response', json);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error(error);
                 });
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.error('Error retrieving Instance ID token', error);
         });
 }
 // handle catch the notification on current page
-messaging.onMessage(function(payload) {
+messaging.onMessage(function (payload) {
     console.log('Message received', payload);
     // register fake ServiceWorker for show notification on mobile devices
-    navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    Notification.requestPermission(function(permission) {
+    navigator.serviceWorker.register('/push-notifications/firebase-messaging-sw.js');
+    Notification.requestPermission(function (permission) {
         if (permission === 'granted') {
             navigator.serviceWorker.ready
-                .then(function(registration) {
+                .then(function (registration) {
                     // Copy data object to get parameters in the click handler
                     payload.data.data = JSON.parse(JSON.stringify(payload.data));
                     registration.showNotification(payload.data.title, payload.data);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     // registration failed :(
                     console.error('ServiceWorker registration failed', error);
                 });
